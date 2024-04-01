@@ -1,0 +1,1506 @@
+{
+	"info": {
+		"_postman_id": "06326704-4f97-472d-bc30-9b2eca53b379",
+		"name": "Fake Store APIs",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "30505155"
+	},
+	"item": [
+		{
+			"name": "Product",
+			"item": [
+				{
+					"name": "Get all products",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var objectsNum = pm.response.json().length;\r",
+									"pm.test(\"The numbers of objets is 20\", function(){\r",
+									"     pm.expect(objectsNum).to.equal(20);\r",
+									"});\r",
+									"pm.test(\"Response time is less than 3000ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+									"});\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Content-Type is json\", function () {\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.contains(\"application/json\");\r",
+									"});\r",
+									"pm.test(\"Check ids not equal null\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.id).not.to.be.null;\r",
+									"});\r",
+									"const items = pm.response.json();\r",
+									"const uniqueCategories = [];\r",
+									"items.forEach(item => {\r",
+									"    const category = item.category;\r",
+									"    if (!uniqueCategories.includes(category)) {\r",
+									"        uniqueCategories.push(category);}\r",
+									"});\r",
+									"pm.environment.set(\"CategoriesCount\", uniqueCategories.length);\r",
+									"pm.environment.set(\"Categories\", uniqueCategories)\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BaseURL}}/products",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Single Product",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Check id\", function(){\r",
+									"    pm.expect(pm.response.json().id.toString()).to.equal(pm.environment.get(\"productID\").toString());\r",
+									"});\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Content-Type is present\", function () {\r",
+									"    pm.response.to.have.header(\"Content-Type\");\r",
+									"});\r",
+									"pm.test(\"Response time is less than 3000ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BaseURL}}/products/{{productID}}",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"products",
+								"{{productID}}"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Limit Results",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var objectsNum = pm.response.json().length;\r",
+									"pm.test(\"The numbers of objets is equal to the limited\", function() {\r",
+									"    for (let i = 0; i < objectsNum; i++) {\r",
+									"        pm.expect(pm.response.json()[i].id).to.equal(i + 1); \r",
+									"    }});\r",
+									"pm.test(\"Check Number of Objects\", function(){\r",
+									"    pm.expect(objectsNum.toString()).to.equal(pm.environment.get(\"LimitValue\").toString());\r",
+									"    });\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Content-Type is present\", function () {\r",
+									"    pm.response.to.have.header(\"Content-Type\");\r",
+									"});\r",
+									"pm.test(\"Response time is less than 3000ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BaseURL}}/products?limit={{LimitValue}}",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"products"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "{{LimitValue}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sort Results",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var objectsNum = pm.response.json().length;\r",
+									"pm.test(\"Verify IDs are in descending order\", function() {\r",
+									"    for (let i = objectsNum - 1; i > 0; i--) {\r",
+									"        pm.expect(pm.response.json()[i].id).to.be.at.most(pm.response.json()[i - 1].id + 1);}});\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response time is less than 3000ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+									"});\r",
+									"pm.test(\"Content-Type is json\", function () {\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.contains(\"application/json\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BaseURL}}/products?sort=desc",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"products"
+							],
+							"query": [
+								{
+									"key": "sort",
+									"value": "desc"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Categories",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var items = pm.response.json(); \r",
+									"pm.test(\"Check Number of Categories\", function(){\r",
+									"    pm.expect(items.length.toString()).to.equal(pm.environment.get(\"CategoriesCount\").toString());\r",
+									"});\r",
+									"var items = pm.response.json();\r",
+									"pm.test(\"Check the Categories\", function() {\r",
+									"    items.forEach(item => {\r",
+									"        pm.expect(pm.environment.get(\"Categories\")).to.include(item);\r",
+									"    });\r",
+									"});\r",
+									"pm.test(\"Response time is less than 3000ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+									"});\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BaseURL}}/products/categories",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"products",
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Product In Specific Category",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var objectsNum = pm.response.json().length\r",
+									"pm.test(\"Check the Categories\", function() {\r",
+									"for (let i = 0; i < objectsNum; i++) {\r",
+									"pm.expect(pm.response.json()[i].category).to.include(\"jewelery\");}});\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response time is less than 3000ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+									"});\r",
+									"pm.test(\"Content-Type is present\", function () {\r",
+									"    pm.response.to.have.header(\"Content-Type\");\r",
+									"});\r",
+									"pm.test(\"Check Categories not equal null\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.id).not.to.be.null;\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BaseURL}}/products/category/jewelery",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"products",
+								"category",
+								"jewelery"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add New Product",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The product is added\", function () {\r",
+									"    pm.expect(pm.response.json().id).to.equal(21);\r",
+									"});\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response time is less than 3000ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+									"});\r",
+									"pm.test(\"Content-Type is json\", function () {\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.contains(\"application/json\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"test product\",\r\n    \"price\": 13.5,\r\n    \"description\": \"lorem ipsum set\",\r\n    \"image\": \"https://i.pravatar.cc\",\r\n    \"category\": \"electronic\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BaseURL}}/products",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Product",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Check if title is updated\", function() {\r",
+									"    pm.expect(pm.response.json().title).to.equal(\"test product\");});\r",
+									"pm.test(\"Check if price is updated\", function() {\r",
+									"    pm.expect(pm.response.json().price).to.equal(13.5);\r",
+									"});\r",
+									"pm.test(\"Check if description is updated\", function() {\r",
+									"    pm.expect(pm.response.json().description).to.equal(\"lorem ipsum set\");\r",
+									"});\r",
+									"pm.test(\"Check if image URL is updated\", function() {\r",
+									"    pm.expect(pm.response.json().image).to.equal(\"https://i.pravatar.cc\");\r",
+									"});\r",
+									"pm.test(\"Check if category is updated\", function() {\r",
+									"    pm.expect(pm.response.json().category).to.equal(\"electronic\");\r",
+									"});\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response time is less than 3000ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"test product\",\r\n    \"price\": 13.5,\r\n    \"description\": \"lorem ipsum set\",\r\n    \"image\": \"https://i.pravatar.cc\",\r\n    \"category\": \"electronic\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BaseURL}}/products/7",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"products",
+								"7"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Product",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Check if title is updated\", function() {\r",
+									"    pm.expect(pm.response.json().title).to.equal(\"test product\");});\r",
+									"pm.test(\"Check if price is updated\", function() {\r",
+									"    pm.expect(pm.response.json().price).to.equal(13.5);\r",
+									"});\r",
+									"pm.test(\"Check if description is updated\", function() {\r",
+									"    pm.expect(pm.response.json().description).to.equal(\"lorem ipsum set\");\r",
+									"});\r",
+									"pm.test(\"Check if image URL is updated\", function() {\r",
+									"    pm.expect(pm.response.json().image).to.equal(\"https://i.pravatar.cc\");\r",
+									"});\r",
+									"pm.test(\"Check if category is updated\", function() {\r",
+									"    pm.expect(pm.response.json().category).to.equal(\"electronic\");\r",
+									"});\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response time is less than 3000ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"test product\",\r\n    \"price\": 13.5,\r\n    \"description\": \"lorem ipsum set\",\r\n    \"image\": \"https://i.pravatar.cc\",\r\n    \"category\": \"electronic\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BaseURL}}/products/7",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"products",
+								"7"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Product",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response time is less than 3000ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+									"});\r",
+									"var objectsNum = pm.response.json().length;\r",
+									"pm.test(\"Verify the product deleted successfully\", function() {\r",
+									"    for (let i = 0; i < objectsNum; i++) {\r",
+									"        pm.expect(pm.response.json()[i].id).to.not.equal(6); \r",
+									"    }\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{BaseURL}}/products/6",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"products",
+								"6"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Cart",
+			"item": [
+				{
+					"name": "Get All Cart",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"check for Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response time is less than 3000ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+									"});\r",
+									"pm.test(\"check data\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"  pm.expect(jsonData[0].id).to.eql(1);\r",
+									"  pm.expect(jsonData[0].userId).to.eql(1);\r",
+									"  pm.expect(jsonData[0].date).to.eql(\"2020-03-02T00:00:00.000Z\");\r",
+									"  pm.expect(jsonData[0].products[0].productId).to.eql(1);\r",
+									"  pm.expect(jsonData[0].products[0].quantity).to.eql(4);\r",
+									"   pm.expect(jsonData[0].products[1].productId).to.eql(2);\r",
+									"  pm.expect(jsonData[0].products[1].quantity).to.eql(1);\r",
+									"   pm.expect(jsonData[0].products[2].productId).to.eql(3);\r",
+									"  pm.expect(jsonData[0].products[2].quantity).to.eql(6);\r",
+									"  \r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BaseURL}}/carts",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"carts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get A Single Cart",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"check for Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response time is less than 3000ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+									"});\r",
+									"pm.test(\"check data\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"  pm.expect(jsonData.id).to.eql(5);\r",
+									"  pm.expect(jsonData.userId).to.eql(3);\r",
+									"  pm.expect(jsonData.date).to.eql(\"2020-03-01T00:00:00.000Z\");\r",
+									"  pm.expect(jsonData.products[0].productId).to.eql(7);\r",
+									"  pm.expect(jsonData.products[0].quantity).to.eql(1);\r",
+									"   pm.expect(jsonData.products[1].productId).to.eql(8);\r",
+									"  pm.expect(jsonData.products[1].quantity).to.eql(1);\r",
+									"  \r",
+									"  \r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BaseURL}}/carts/5",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"carts",
+								"5"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Limit Results",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"check for Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response time is less than 3000ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+									"});\r",
+									"pm.test(\"Response contains array of carts with length 5\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.length(5);\r",
+									"});\r",
+									"pm.test(\"Each cart object has expected keys\", function () {\r",
+									"    var carts = pm.response.json();\r",
+									"    carts.forEach(function (cart) {\r",
+									"        pm.expect(cart).to.have.keys(['id', 'userId', 'date', 'products', '__v']);\r",
+									"    });\r",
+									"});\r",
+									"pm.test(\"Number of carts does not exceed limit\", function () {\r",
+									"    var limit = 5; \r",
+									"    var carts = pm.response.json();\r",
+									"    pm.expect(carts.length).to.be.at.most(limit);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"check data\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"  pm.expect(jsonData[0].id).to.eql(1);\r",
+									"  pm.expect(jsonData[0].userId).to.eql(1);\r",
+									"  pm.expect(jsonData[0].date).to.eql(\"2020-03-02T00:00:00.000Z\");\r",
+									"  pm.expect(jsonData[0].products[0].productId).to.eql(1);\r",
+									"  pm.expect(jsonData[0].products[0].quantity).to.eql(4);\r",
+									"  \r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BaseURL}}/carts?limit=5",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"carts"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "5"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sort Results",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"check for Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response time is less than 3000ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Results are sorted in descending order based on id\", function () {\r",
+									"    var carts = pm.response.json();\r",
+									"    for (var i = 0; i < carts.length - 1; i++) {\r",
+									"        pm.expect(carts[i].id).to.be.at.least(carts[i + 1].id);\r",
+									"    }\r",
+									"});\r",
+									"\r",
+									"pm.test(\"check data\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"  pm.expect(jsonData[0].id).to.eql(7);\r",
+									"  pm.expect(jsonData[0].userId).to.eql(8);\r",
+									"  pm.expect(jsonData[0].date).to.eql(\"2020-03-01T00:00:00.000Z\");\r",
+									"  pm.expect(jsonData[0].products[0].productId).to.eql(18);\r",
+									"  pm.expect(jsonData[0].products[0].quantity).to.eql(1);\r",
+									"  \r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BaseURL}}/carts?sort=desc",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"carts"
+							],
+							"query": [
+								{
+									"key": "sort",
+									"value": "desc"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Carts In A Date Range",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"check for Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response time is less than 3000ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Carts fall within the specified date range\", function () {\r",
+									"    var response = pm.response.json();\r",
+									"    var startDate = new Date(\"2019-12-10\");\r",
+									"    var endDate = new Date(\"2020-10-10\"); \r",
+									"    response.forEach(function(cart) {\r",
+									"        var cartDate = new Date(cart.date);\r",
+									"        pm.expect(cartDate >= startDate && cartDate <= endDate).to.be.true;\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"pm.test(\"check data\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"  pm.expect(jsonData[0].id).to.eql(1);\r",
+									"  pm.expect(jsonData[0].userId).to.eql(1);\r",
+									"  pm.expect(jsonData[0].date).to.eql(\"2020-03-02T00:00:00.000Z\");\r",
+									"  pm.expect(jsonData[0].products[0].productId).to.eql(1);\r",
+									"  pm.expect(jsonData[0].products[0].quantity).to.eql(4);\r",
+									"  \r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BaseURL}}/carts?startdate=2019-12-10&enddate=2020-10-10",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"carts"
+							],
+							"query": [
+								{
+									"key": "startdate",
+									"value": "2019-12-10"
+								},
+								{
+									"key": "enddate",
+									"value": "2020-10-10"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Carts",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"check for Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response time is less than 3000ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+									"});\r",
+									"pm.test(\"check data\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"  pm.expect(jsonData[0].id).to.eql(3);\r",
+									" pm.expect(jsonData[0].userId).to.eql(2);\r",
+									"  pm.expect(jsonData[0].date).to.eql(\"2020-03-01T00:00:00.000Z\");\r",
+									"  pm.expect(jsonData[0].products[0].productId).to.eql(1);\r",
+									"  pm.expect(jsonData[0].products[0].quantity).to.eql(2);\r",
+									"   pm.expect(jsonData[0].products[1].productId).to.eql(9);\r",
+									"  pm.expect(jsonData[0].products[1].quantity).to.eql(1);\r",
+									"  \r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BaseURL}}/carts/user/2",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"carts",
+								"user",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add A New Product",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"check for Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response time is less than 3000ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+									"});\r",
+									"pm.test(\"New product is added to the cart\", function () {\r",
+									"    var responseData = pm.response.json();\r",
+									"    var addedProduct = null;\r",
+									"    for (var i = 0; i < responseData.products.length; i++) {\r",
+									"        if (responseData.products[i].productId === 7) {\r",
+									"            addedProduct = responseData.products[i];\r",
+									"            break;\r",
+									"        }\r",
+									"    }\r",
+									"    pm.expect(addedProduct).to.exist;\r",
+									"    pm.expect(addedProduct.quantity).to.eql(1);\r",
+									"});\r",
+									"pm.test(\"check data\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"  pm.expect(jsonData.id).to.eql(11);\r",
+									" pm.expect(jsonData.userId).to.eql(5);\r",
+									"  pm.expect(jsonData.date).to.eql( \"2020-02-03\");\r",
+									"  pm.expect(jsonData.products[0].productId).to.eql(5);\r",
+									"  pm.expect(jsonData.products[0].quantity).to.eql(1);\r",
+									"   pm.expect(jsonData.products[1].productId).to.eql(1);\r",
+									"  pm.expect(jsonData.products[1].quantity).to.eql(5);\r",
+									"  \r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userId\": 5,\r\n    \"date\": \"2020-02-03\",\r\n    \"products\": [\r\n        { \"productId\": 5, \"quantity\": 1 },\r\n        { \"productId\": 1, \"quantity\": 5 },\r\n        { \"productId\": 7, \"quantity\": 1 }\r\n    ]\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BaseURL}}/carts",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"carts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update A Product By PUT",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response time is less than 3000ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+									"});\r",
+									"pm.test(\"Updated cart is returned with correct structure\", function () {\r",
+									"    var responseData = pm.response.json();\r",
+									"    pm.expect(responseData.userId).to.eql(3); \r",
+									"    pm.expect(responseData.date).to.eql(\"2019-12-10\"); \r",
+									"    pm.expect(responseData.products).to.eql([{productId:1,quantity:3}]); \r",
+									"});\r",
+									"pm.test(\"check data\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"  pm.expect(jsonData.id).to.eql(7);\r",
+									" pm.expect(jsonData.userId).to.eql(3);\r",
+									"  pm.expect(jsonData.date).to.eql(\"2019-12-10\");\r",
+									"  pm.expect(jsonData.products[0].productId).to.eql(1);\r",
+									"  pm.expect(jsonData.products[0].quantity).to.eql(3);\r",
+									" \r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userId\": 3,\r\n    \"date\": \"2019-12-10\",\r\n    \"products\": [\r\n        { \"productId\": 1, \"quantity\": 3 }\r\n    ]\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BaseURL}}/carts/7",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"carts",
+								"7"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update A Product By PATCH",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response time is less than 3000ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+									"});\r",
+									"pm.test(\"Updated cart is returned with correct structure\", function () {\r",
+									"    var responseData = pm.response.json();\r",
+									"    pm.expect(responseData.userId).to.eql(3); \r",
+									"    pm.expect(responseData.products).to.eql([{productId:1,quantity:3}]); \r",
+									"});\r",
+									"pm.test(\"check data\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"  pm.expect(jsonData.id).to.eql(7);\r",
+									" pm.expect(jsonData.userId).to.eql(3);\r",
+									"  pm.expect(jsonData.products[0].productId).to.eql(1);\r",
+									"  pm.expect(jsonData.products[0].quantity).to.eql(3);\r",
+									" \r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n                        \"userId\":3,\r\n                       \" date\": \"2019-12-10\",\r\n                        \"products\":[\r\n                            {\"productId\":1, \"quantity\":3}\r\n                                   ]\r\n                    }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BaseURL}}/carts/7",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"carts",
+								"7"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete A Cart",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response time is less than 3000ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Deleted cart is returned with correct structure\", function () {\r",
+									"    var responseData = pm.response.json();\r",
+									"    pm.expect(responseData.id).to.eql(6);\r",
+									"   pm.expect(responseData.userId).to.exist;\r",
+									"    pm.expect(responseData.date).to.exist;\r",
+									"    pm.expect(responseData.products).to.exist; \r",
+									"});\r",
+									"pm.test(\"check data\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"  pm.expect(jsonData.id).to.eql(6);\r",
+									" pm.expect(jsonData.userId).to.eql(4);\r",
+									"  pm.expect(jsonData.date).to.eql(\"2020-03-01T00:00:00.000Z\");\r",
+									"  pm.expect(jsonData.products[0].productId).to.eql(10);\r",
+									"  pm.expect(jsonData.products[0].quantity).to.eql(2);\r",
+									"   pm.expect(jsonData.products[1].productId).to.eql(12);\r",
+									"  pm.expect(jsonData.products[1].quantity).to.eql(3);\r",
+									"  \r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{BaseURL}}/carts/6",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"carts",
+								"6"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Get All",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Response time is less than 3000ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+									"});\r",
+									"pm.test(\"Successful POST request\", function () {\r",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 202]);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BaseURL}}/users",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get a single user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Response time is less than 3000ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+									"});\r",
+									"pm.test(\"Successful POST request\", function () {\r",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 202]);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BaseURL}}/users/1",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"users",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Limit results",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Response time is less than 3000ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+									"});\r",
+									"pm.test(\"Successful POST request\", function () {\r",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 202]);\r",
+									"});\r",
+									"var numofelement=pm.response.lenghth;\r",
+									"pm.test(\"check limits\", function () {\r",
+									"    for(let i=1;i<numofelement;i++)\r",
+									"    {pm.expect(pm.response.json()[i].id).to.equal(i+1);\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BaseURL}}/users?limit=5",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"users"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "5"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "sort",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Response time is less than 3000ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+									"});\r",
+									"pm.test(\"Successful POST request\", function (\r",
+									"\r",
+									") {\r",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 202]);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"check sort\", function () {\r",
+									"    var responseJson = pm.response.json();\r",
+									"    var numofelement = responseJson.length;\r",
+									"\r",
+									"    // Loop through the elements starting from the second one\r",
+									"    for (let i = 1; i < numofelement; i++) {\r",
+									"        // Check if the current ID is greater than or equal to the previous one\r",
+									"        pm.expect(responseJson[i].id).to.be.at.most(responseJson[i - 1].id);\r",
+									"    }\r",
+									"});\r",
+									"\r",
+									"\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BaseURL}}/users?sort=desc",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"users"
+							],
+							"query": [
+								{
+									"key": "sort",
+									"value": "desc"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Response time is less than 3000ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+									"});\r",
+									"pm.test(\"Successful POST request\", function () {\r",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 202]);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\"id\": 11,    \r\n\"email\": \"John@gmail.com\",\r\n    \"username\": \"johnd\",\r\n    \"password\": \"m38rmF$\",\r\n    \"name\": {\r\n        \"firstname\": \"John\",\r\n        \"lastname\": \"Doe\"\r\n    },\r\n    \"address\": {\r\n        \"city\": \"kilcoole\",\r\n        \"street\": \"7835 new road\",\r\n        \"number\": 3,\r\n        \"zipcode\": \"12926-3874\",\r\n        \"geolocation\": {\r\n            \"lat\": \"-37.3159\",\r\n            \"long\": \"81.1496\"\r\n        }\r\n    },\r\n    \"phone\": \"1-570-236-7033\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BaseURL}}/users",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Response time is less than 3000ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+									"});\r",
+									"pm.test(\"Successful POST request\", function (\r",
+									"\r",
+									") {\r",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 202]);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"John@gmail.com\",\r\n    \"username\": \"johnd\",\r\n    \"password\": \"m38rmF$\",\r\n    \"name\": {\r\n        \"firstname\": \"John\",\r\n        \"lastname\": \"Doe\"\r\n    },\r\n    \"address\": {\r\n        \"city\": \"kilcoole\",\r\n        \"street\": \"7835 new road\",\r\n        \"number\": 3,\r\n        \"zipcode\": \"12926-3874\",\r\n        \"geolocation\": {\r\n            \"lat\": \"-37.3159\",\r\n            \"long\": \"81.1496\"\r\n        }\r\n    },\r\n    \"phone\": \"1-570-236-7033\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BaseURL}}/users/7",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"users",
+								"7"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Response time is less than 3000ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+									"});\r",
+									"pm.test(\"Successful POST request\", function (\r",
+									"\r",
+									") {\r",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 202]);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BaseURL}}/users/6",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"users",
+								"6"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Login",
+			"item": [
+				{
+					"name": "userlogin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Response time is less than 3000ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+									"});\r",
+									"pm.test(\"Successful POST request\", function (\r",
+									"\r",
+									") {\r",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 202]);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"mor_2314\",\r\n    \"password\": \"83r5^_\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BaseURL}}/auth/login",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
